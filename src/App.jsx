@@ -19,7 +19,6 @@ function App() {
     console.log(date, dateString);
   };
 
-  console.log(ar[0].name);
   const showModal = (index) => {
     setIndexEdit(index)
     setIsModalOpen(true);
