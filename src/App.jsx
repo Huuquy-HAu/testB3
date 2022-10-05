@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import './App.css';
-import { Button, Modal, Form, message, Input, DatePicker, Space } from 'antd';
+import { Button, Modal, Form, message, Input, DatePicker, Space, Empty, Popconfirm } from 'antd';
 import 'antd/dist/antd.css';
 import { useForm } from 'rc-field-form';
 
@@ -11,18 +11,10 @@ import { useForm } from 'rc-field-form';
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [indexEdit, setIndexEdit] = useState(0)
+  const [form] = Form.useForm()
   const [ar, setAr] = useState([
     { name: 'Làm bài tập', description: "Làm luôn trong ngày hôm nay", deadline: '2022-10-03' }
   ])
-
-  const onChange = (date, dateString) => {
-    console.log(date, dateString);
-  };
-
-  const showModal = (index) => {
-    setIndexEdit(index)
-    setIsModalOpen(true);
-  };
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -54,7 +46,7 @@ function App() {
     if (!name || !des || !date) {
       message.error("Không được để trống thông tin !!!")
     } else {
-      setAr([...ar, { name: name, description: des, dateline: date }])
+      setAr([...ar, { name: name, description: des, deadline: date }])
       message.success('Thêm thành công')
       document.querySelector('.input-name').value = ''
       document.querySelector('.input-des').value = ''
@@ -75,45 +67,51 @@ function App() {
           <button onClick={add}>Add</button>
         </div>
         <div className="todoList-output">
-          {ar ? 
-          ar.map((value, index) => {
+          {ar.length > 0 ?
+            ar.map((value, index) => {
 
 
-            const deleteBtn = () => {
-              ar.splice(index, 1)
-              setAr([...ar])
-              message.success('Xóa thành công')
-            }
-            const showModal = () => {
-              console.log(90, index);
-              setIndexEdit(index)
-              setIsModalOpen(true);
-            };
+              const deleteBtn = () => {
+                ar.splice(index, 1)
+                setAr([...ar])
+                message.success('Xóa thành công')
+              }
+              const showModal = () => {
+                console.log(90, index);
+                setIndexEdit(index)
+                setIsModalOpen(true);
+                form.setFieldsValue(
+                  {
+                    name: ar[index].name,
+                    description: ar[index].description,
+                    deadline: ar[index].deadline
+                  })
+              };
 
 
-            return (
-              <div className="data" key={index}>
-                <div className="data-left">
-                  <h1>{value.name}</h1>
-                  <p><i>{value.description}</i></p>
-                  <p>{value.deadline}</p>
+              return (
+                <div className="data" key={index}>
+                  <div className="data-left">
+                    <h1>{value.name}</h1>
+                    <p><i>{value.description}</i></p>
+                    <p>{value.deadline}</p>
+                  </div>
+                  <div className="data-right">
+                    <Button type="primary" onClick={() => { showModal() }}>
+                      Sửa
+                    </Button>
+                    <Popconfirm title="Sure to delete?" onConfirm={deleteBtn}>
+                      <Button type='primary' danger>Delete</Button>
+                    </Popconfirm>
+                  </div>
                 </div>
-                <div className="data-right">
-                  <Button type="primary" onClick={() => { showModal() }}>
-                    Sửa
-                  </Button>
-                  <Button type="primary" danger onClick={deleteBtn}>
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            )
-          }):
-          ''
+              )
+            }) :
+            <Empty />
           }
         </div>
         <Modal title="Edit Form" footer={null} open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-          <Form name="basic" labelCol={{ span: 24, }}
+          <Form form={form} name="basic" labelCol={{ span: 24, }}
             initialValues={{ remember: true }}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
@@ -128,7 +126,7 @@ function App() {
                 },
               ]}
             >
-              <input type={Text} id='basic-name' placeholder='Name' style={{ width: "100%", padding: '8px 16px', outline: '0', border: 'none', borderBottom: "1px solid gray" }} />
+              <Input placeholder='Name' style={{ width: "100%", padding: '8px 16px', outline: '0', border: 'none', borderBottom: "1px solid gray" }} />
             </Form.Item>
 
             <Form.Item
@@ -141,7 +139,7 @@ function App() {
                 },
               ]}
             >
-              <input type={Text} id='basic_description' placeholder='description' style={{ width: "100%", padding: '8px 16px', outline: '0', border: 'none', borderBottom: "1px solid gray" }} />
+              <Input placeholder='Description' style={{ width: "100%", padding: '8px 16px', outline: '0', border: 'none', borderBottom: "1px solid gray" }} />
             </Form.Item>
 
             <Form.Item
@@ -154,7 +152,7 @@ function App() {
                 },
               ]}
             >
-              <input type="date" name="" id="" />
+              <input type="date" name="" id="" style={{ width: "100%", padding: '8px 16px', outline: '0', border: 'none', borderBottom: "1px solid gray" }} />
             </Form.Item>
 
             <Form.Item
